@@ -1,0 +1,82 @@
+---
+title: "Estero Santa Cruz Water Temp"
+author: "Abram B. Fleishman"
+date: "November 1, 2015"
+output: html_document
+---
+
+I found some water temperature data from Estero Santa Cruz, Sonora, MX from 2006-2014.  The data were found here: <http://cosaesobr.dyndns.org:85/tempcosaes/termografos2.aspx?enviar=Entrar+al+Sistema>
+Pick: "JSLA Bahia de Kino", "Estero Santa Cruz", "1/1/2000" to "1/1/2015"
+
+```{r,echo=FALSE,warning=F,message=F}
+library(lubridate)
+library(tidyr)
+library(dplyr)
+library(zoo)
+```
+# Load Data
+First we we Load the data
+
+```{r}
+
+a<-read.csv("~/Downloads/Workbook5.csv")
+a$date<-dmy(a$Fecha)
+head(a)
+
+```
+
+You can see that there are daily minimum, maximum, and mean temperatures along with a date column.  However, when I tried to plot the data Ifound that the date is all screwed up.  Some of the years were four digits and some were two digits eg 2006 vs 06, so we need to fix it before we can make a pretty plot.
+
+# Clean it up a bit
+First I will seperate the date string using the function seperate from the tidyr package.
+
+```{r}
+a<-separate(a,Fecha,into=c("day","month","year"),sep="/")
+head(a)
+```
+
+Then I need to change all the two digit years into four digit years. and then paste the day month year data back into a date
+
+```{r}
+a$year[nchar(a$year)==2]<-paste(20,a$year[nchar(a$year)==2],sep="")
+a$Date<-ymd(paste(a$year,a$month, a$day))
+
+head(a)
+```
+
+# Plot the data
+Now we should be able to plot the data
+
+```{r}
+plot(a$Date,a$TempPromedio,type="l")
+```
+
+Oops!  What is that?  The output is all messed up because the data are not sorted correctly (in time oder).
+
+```{r}
+a<-arrange(a,Date)
+plot(a$Date,a$TempPromedio,type="l")
+```
+
+That is a lot better! 
+Now lets take a 15 day rolling mean and plot that as a line along with the points.
+
+```{r}
+a$roll<-rollmean(a$TempPromedio,15,na.pad = T)
+plot(a$Date,a$TempPromedio,cex=.3,pch=16,type="p",col="red")
+lines(a$Date,a$roll,col="blue")
+```
+
+You can see that there are some gaps in the data but this is looking pritty good.
+
+# Mean by julian day
+Now I want to make a plot of mean temperature by day of year.  First I need to calculate julian date.  Then summarize the mean temperature by the julian date.
+
+```{r}
+a$jdate<-yday(a$Date)
+b<-summarise(group_by(a, jdate), mean=mean(TempPromedio), sd=sd(TempPromedio))
+b$roll<-rollmean(b$mean,15,na.pad = T)
+plot(b$jdate,b$mean,cex=.3,pch=16,type="p",col="red",xlab="Julian Date",ylab="Mean Water Temp(Degrees C)",main="Mean Water Temperture \n Estero Santa Cruz, Sonora, Mexico \n 2006-2013")
+lines(b$jdate,b$roll,col="blue",type="l")
+
+```
