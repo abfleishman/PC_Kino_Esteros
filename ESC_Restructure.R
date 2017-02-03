@@ -13,7 +13,7 @@ library(XLConnect)
 library(reshape2)
 # Using the XLConnect library use the loop below to read in each spreadsheet from your data
 # you must change the path to the data in the loadWorkbook function
-for(i in 1:37){assign(paste("ESC_In_Sheet",i,sep="_"), readWorksheet(loadWorkbook("~/Desktop/SantaCruzCensus2009-2011.xlsx"), sheet = i, startRow=1, endRow=400, header=F))}
+for(i in 1:37){assign(paste("ESC_In_Sheet",i,sep="_"), readWorksheet(loadWorkbook("~/Dropbox/PC_Kino_Esteros/SantaCruzCensus2009-2011.xlsx"), sheet = i, startRow=1, endRow=400, header=F))}
 
 ESC_list<-ls(pattern = "ESC_In_Sheet")
 Temp1<-ESC_In_Sheet_1
@@ -29,7 +29,7 @@ Restructure<-function(WSlist,Estero, outPath){
       Temp<-cbind(Temp1[1],Temp1[i])
       Temp$Location  <-Temp[1,2]
       Temp$Date  <-as.Date(Temp[2,2])
-      Temp$Date<- as.Date(as.POSIXct(Temp$Date,format="%Y-%m-%d")+(1463*60*60*24)-86400)
+      Temp$Date<- as.Date(as.POSIXct(Temp$Date,format="%Y-%m-%d"))
       Temp$Start  <-Temp[3,2]
       Temp$Start_Hour<-hour(Temp$Start)
       Temp$Start_Minute<-minute(Temp$Start)
@@ -101,10 +101,11 @@ Restructure<-function(WSlist,Estero, outPath){
     
     # Write the data to a CSV
   write.csv(Temp3,outPath,row.names = F)
-}
+return(Temp3)
+  }
 
-Restructure(WSlist = ESC_list, Estero = "ESC", outPath = "~/ESCRestructured.csv")
-ESCRestructured<-read.csv("~/ESCRestructured.csv")
+test<-Restructure(WSlist = ESC_list, Estero = "ESC", outPath = "~/ESCRestructured11.csv")
+ESCRestructured<-read.csv("~/ESCRestructured11.csv")
 names(ESCRestructured)
 unique(ESCRestructured$Species)
 
