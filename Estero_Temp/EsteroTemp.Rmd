@@ -25,10 +25,10 @@ head(a)
 
 ```
 
-You can see that there are daily minimum, maximum, and mean temperatures along with a date column.  However, when I tried to plot the data Ifound that the date is all screwed up.  Some of the years were four digits and some were two digits eg 2006 vs 06, so we need to fix it before we can make a pretty plot.
+You can see that there are daily minimum, maximum, and mean temperatures along with a date column.  However, when I tried to plot the data I found that the date is all screwed up.  Some of the years were four digits and some were two digits eg 2006 vs 06, so we need to fix it before we can make a pretty plot.
 
 # Clean it up a bit
-First I will seperate the date string using the function seperate from the tidyr package.
+First I will separate the date string using the function separate from the tidyr package.
 
 ```{r}
 a<-separate(a,Fecha,into=c("day","month","year"),sep="/")
@@ -51,7 +51,7 @@ Now we should be able to plot the data
 plot(a$Date,a$TempPromedio,type="l")
 ```
 
-Oops!  What is that?  The output is all messed up because the data are not sorted correctly (in time oder).
+Oops!  What is that?  The output is all messed up because the data are not sorted correctly (in time order).
 
 ```{r}
 a<-arrange(a,Date)
@@ -67,10 +67,10 @@ plot(a$Date,a$TempPromedio,cex=.3,pch=16,type="p",col="red")
 lines(a$Date,a$roll,col="blue")
 ```
 
-You can see that there are some gaps in the data but this is looking pritty good.
+You can see that there are some gaps in the data but this is looking pretty good.
 
 # Mean by julian day
-Now I want to make a plot of mean temperature by day of year.  First I need to calculate julian date.  Then summarize the mean temperature by the julian date.
+Now I want to make a plot of mean temperature by day of year.  First I need to calculate Julian date.  Then summarize the mean temperature by the Julian date.
 
 ```{r}
 a$jdate<-yday(a$Date)
