@@ -1,9 +1,9 @@
 
-E17<-read.csv("~/Dropbox/PC_Kino_Esteros/PC_ESC_2016_2017_restructured.csv", stringsAsFactors=FALSE)
-ESC2015<-read.csv("~/Dropbox/PC_Kino_Esteros//PC_ESC_2014_2015_restructured.csv", stringsAsFactors=FALSE)
-ESC2014<-read.csv("~/Dropbox/PC_Kino_Esteros//PC_ESC_2013_2014_restructured.csv", stringsAsFactors=FALSE)
-ESC2013<-read.csv("~/Dropbox/PC_Kino_Esteros/PC_ESC_2012_2013_restructured.csv",stringsAsFactors=FALSE)
-ESC2011<-read.csv("~/Dropbox/PC_Kino_Esteros/PC_ESC_2009_2011_restructured.csv",stringsAsFactors=FALSE)
+E17<-read.csv("~/Dropbox/PC_Kino_Esteros/Data_Restruct/PC_ESC_2016_2017_restructured.csv", stringsAsFactors=FALSE)
+ESC2015<-read.csv("~/Dropbox/PC_Kino_Esteros/Data_Restruct/PC_ESC_2014_2015_restructured.csv", stringsAsFactors=FALSE)
+ESC2014<-read.csv("~/Dropbox/PC_Kino_Esteros/Data_Restruct/PC_ESC_2013_2014_restructured.csv", stringsAsFactors=FALSE)
+ESC2013<-read.csv("~/Dropbox/PC_Kino_Esteros/Data_Restruct/PC_ESC_2012_2013_restructured.csv",stringsAsFactors=FALSE)
+ESC2011<-read.csv("~/Dropbox/PC_Kino_Esteros/Data_Restruct/PC_ESC_2009_2011_restructured.csv",stringsAsFactors=FALSE)
 library(dplyr)
 library(tidyr)
 head(E17)
@@ -82,9 +82,36 @@ hmm$Species<-gsub("Small Shorebird Sp.","Small Shorebird spp.",hmm$Species)
 hmm$Species<-gsub("^tern$","Tern",hmm$Species)
 hmm$Species<-gsub("^Tern$","Tern spp.",hmm$Species)
 hmm$Species<-gsub("Tri-Colored Heron","Tricolored Heron",hmm$Species)
+hmm$Species<-gsub("Tri-Colored Heron","Tricolored Heron",hmm$Species)
+hmm$Species<-gsub("Black Bellied Plover","Black-bellied Plover",hmm$Species)
+hmm$Species<-gsub("Black bellied Plover","Black-bellied Plover",hmm$Species)
+hmm$Species<-gsub("Brants","Brant",hmm$Species)
+hmm$Species<-gsub("Forester's","Forster's",hmm$Species)
+hmm$Species<-gsub("Loon Sp","Loon spp",hmm$Species)
+hmm$Species<-gsub("Peep sp.$","Peep spp.",hmm$Species)
+hmm$Species<-gsub("Peep Sp.$","Peep spp.",hmm$Species)
+hmm$Species<-gsub("Peep Species","Peep spp.",hmm$Species)
+hmm$Species<-gsub("Peeps Sp","Peeps spp",hmm$Species)
+hmm$Species<-gsub("Peeps","Peep spp.",hmm$Species)
+hmm$Species<-gsub("Peep spp. spp.","Peep spp.",hmm$Species)
+hmm$Species<-gsub("Sandpiper Sp","Peep spp.",hmm$Species)
+hmm$Species<-gsub("Turnstone Sp.","Turnstone spp.",hmm$Species)
+hmm$Species<-gsub("Yellow Crowned Night Heron","Yellow-crowned Night Heron",hmm$Species)
+hmm$Count<-gsub(",","",hmm$Count)
+hmm$Count<-as.numeric(hmm$Count)
+hmm<-filter(hmm,Count>0,!is.na(Count))
+hmm$Season[hmm$month%in%c(12,1,2)]<-"Winter"
+hmm$Season[hmm$month%in%c(3,4,5)]<-"Spring"
+hmm$Season[hmm$month%in%c(6,7,8)]<-"Summer"
+hmm$Season[hmm$month%in%c(9,10,11)]<-"Fall"
+hmm$rich<-1
+hmm$rich[str_detect(hmm$Species,"spp")]<-0
+hmm$rich[str_detect(hmm$Species,"/")]<-0
+hmm$rich[str_detect(hmm$Species,"Dark Herons")]<-0
+
 hmm<-filter(hmm,Count>0)
 head(hmm)
 hmm<-select(hmm,Location,Loc_Code,Estero,Date,Start,End, Start_Date_Time,End_Date_Time,year,month,day,Start_Hour,End_Hour,Start_Minute, End_Minute,Duration,Total_Count_Duration,Grand_sp_total,Sky_cover_percent,Temp,Tide_Height,Tide_dir,Wind_Dir,Wind_speed_Beaufort,Wind_speed_MPH,Observers_num,Observers_initial,Species,Count,Notes)
 
-write.csv(hmm,"~/Dropbox/PC_Kino_Esteros/PC_ESC_2009_2016_restructured.csv")
-saveRDS(hmm,"~/Dropbox/PC_Kino_Esteros/PC_ESC_2009_2016_restructured.rda")
+write.csv(hmm,"~/Dropbox/PC_Kino_Esteros/Data_Restruct/PC_ESC_2009_2016_restructured.csv")
+saveRDS(hmm,"~/Dropbox/PC_Kino_Esteros/Data_Restruct/PC_ESC_2009_2016_restructured.rda")
