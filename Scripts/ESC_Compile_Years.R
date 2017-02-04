@@ -4,6 +4,7 @@ ESC2015<-read.csv("~/Dropbox/PC_Kino_Esteros/Data_Restruct/PC_ESC_2014_2015_rest
 ESC2014<-read.csv("~/Dropbox/PC_Kino_Esteros/Data_Restruct/PC_ESC_2013_2014_restructured.csv", stringsAsFactors=FALSE)
 ESC2013<-read.csv("~/Dropbox/PC_Kino_Esteros/Data_Restruct/PC_ESC_2012_2013_restructured.csv",stringsAsFactors=FALSE)
 ESC2011<-read.csv("~/Dropbox/PC_Kino_Esteros/Data_Restruct/PC_ESC_2009_2011_restructured.csv",stringsAsFactors=FALSE)
+
 library(dplyr)
 library(tidyr)
 head(E17)
@@ -116,7 +117,7 @@ hmm$rich[str_detect(hmm$Species,"spp")]<-0
 hmm$rich[str_detect(hmm$Species,"/")]<-0
 hmm$rich[str_detect(hmm$Species,"Dark Herons")]<-0
 hmm$rich[str_detect(hmm$Species,"White Herons")]<-0
-
+a<-ESC2013[is.na(ESC2013$Species),]
 hmm<-filter(hmm,Count>0)
 head(hmm)
 hmm<-select(hmm,Location,Loc_Code,Estero,Date,Start,End, Start_Date_Time,End_Date_Time,year,month,day,Start_Hour,End_Hour,Start_Minute, End_Minute,Duration,Total_Count_Duration,Grand_sp_total,Sky_cover_percent,Temp,Tide_Height,Tide_dir,Wind_Dir,Wind_speed_Beaufort,Wind_speed_MPH,Observers_num,Observers_initial,Species, rich,Count,Notes)
