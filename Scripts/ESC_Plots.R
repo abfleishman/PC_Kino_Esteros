@@ -5,7 +5,7 @@ hmm1<-filter(hmm,Rich!=0, Water==1)
 # Richness_month_Year -----------------------------------------------------
 
 Month_Sp_Rich<-hmm1 %>%
-  group_by(year, month) %>%
+  group_by(Date,year, month) %>%
   summarise(SpRich=length(unique(Species)),Total_ind=sum(Count)) %>%
   group_by(year, month) %>%
   summarise(Rich=mean(SpRich),SD=sd(SpRich),num=sum(Total_ind),N=n())
@@ -19,6 +19,12 @@ ggplot(Month_Sp_Rich,aes(x=year,y=Rich))+facet_wrap(~month,nrow = 3)+
   xlab("year")+theme_bw(base_size = 24)+theme(axis.text.x =element_text(angle = 90))
 ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/Richness_month_Year.jpg",scale = 1,width = 12,height=8,units = "in",dpi = 450)
 
+ggplot(Month_Sp_Rich,aes(x=month,y=Rich,fill=month))+facet_grid(.~year)+
+  geom_bar(stat="identity",position=position_dodge(.5),width=.9) +
+  ylab("Species Richness")+
+  xlab("Year")+theme_bw(base_size = 18)+theme(axis.text.x =element_text(angle = 0))
+ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/Richness_month_Year_long.jpg",scale = 1,width = 20,height=6,units = "in",dpi = 450)
+
 Month_Sp_Rich_All<-Month_Sp_Rich %>%
   group_by(month) %>%
   summarise(RICH=mean(Rich),SD=sd(Rich),Num=mean(num),SD_Num=sd(num),N=n())
@@ -29,9 +35,29 @@ ggplot(Month_Sp_Rich_All,aes(x=month,y=RICH))+
   xlab("Month")+theme_bw(base_size = 24)
 ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/Mean_Richness_month.jpg",scale = 1,width = 10,height=10,units = "in",dpi = 450)
 
+
+
+year_Sp_Rich<-hmm1 %>%
+  filter(year!=2017) %>% 
+  group_by(Date,year, month) %>%
+  summarise(SpRich=length(unique(Species)),Total_ind=sum(Count)) %>%
+  group_by(year) %>%
+  summarise(Rich=mean(SpRich),SD=sd(SpRich),num=sum(Total_ind),N=n())
+
+summary(lm(Rich~year,data=year_Sp_Rich))
+year_Sp_Rich$year<-factor(year_Sp_Rich$year)
+
+ggplot(year_Sp_Rich,aes(x=year,y=Rich))+
+  geom_bar(stat="identity",position=position_dodge(.5),fill="dodgerblue1",width=.9) +
+  geom_errorbar(aes(ymin=Rich-SD,ymax=Rich+SD),width=.5,position=position_dodge(.5))+
+  ylab("Species Richness ± SD")+
+  xlab("Year")+theme_bw(base_size = 24)+theme(axis.text.x =element_text(angle = 90))
+ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/Richness_Year.jpg",scale = 1,width = 12,height=8,units = "in",dpi = 450)
+
+
 # Mean Sp Abundance by month ----------------------------------------------
 Month_Sp_Abun<-hmm %>%
-  group_by(year, month) %>%
+  group_by(Date,year, month) %>%
   summarise(SpRich=length(unique(Species)),Total_ind=sum(Count)) %>%
   group_by(year, month) %>%
   summarise(Rich=mean(SpRich),SD=sd(SpRich),num=sum(Total_ind),N=n())
@@ -94,6 +120,8 @@ ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/Mean_Seasonal_Abundance.jpg"
 # Max by species ----------------------------------------------------------
 
 Sum_Max<-hmm1 %>%
+  group_by(Species,Date) %>%
+  summarise(Count=sum(Count)) %>%
   group_by(Species) %>%
   summarise(Max=max(Count)) %>%
   arrange(Max) %>%
@@ -110,6 +138,8 @@ ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/Max_by_spp.jpg",scale = 1,wi
 # Willit abundance --------------------------------------------------------
 will<-filter(hmm1, Species=="Willet")
 will_sum<-will %>% 
+  group_by(Species,Date) %>%
+  summarise(Count=sum(Count)) %>%
   group_by(year,month) %>% 
   summarise(Mean_Num=mean(Count),SD=sd(Count))
 
@@ -120,8 +150,10 @@ ggplot(will_sum,aes(x=month,y=Mean_Num))+
 ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/mean_williet.jpg",scale = 1,width = 8,height=18,units = "in",dpi = 450)
 
 # Species abundance --------------------------------------------------------
-
+hmm1 %>% filter(Species=="Reddish Egret",Count>100) %>% View()
 Species_abun_sum<-hmm1 %>% 
+  group_by(Species,Date,year, month) %>%
+  summarise(Count=sum(Count)) %>%
   group_by(Species) %>% 
   filter(n()>10,max(Count)>10) %>% 
   group_by(Species,year,month) %>% 
@@ -140,40 +172,46 @@ ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/mean_species_by_month.jpg",s
 
 OneP<-read.csv("~/Dropbox/PC_Kino_Esteros/OnePct.csv")
 Species_abun_sum<-hmm1 %>% 
+  group_by(Species,Date,year, month) %>%
+  summarise(Count=sum(Count)) %>%
   group_by(Species) %>% 
   filter(Species%in% c("Reddish Egret","American Oystercatcher","Wilson's Plover","Snowy Plover", "Marbled Godwit","Willit","Black Skimmer" ,"Forster's Tern","Elegant Tern", "Royal Tern")) %>% 
   group_by(Species,year,month) %>% 
   summarise(Mean_Num=mean(Count),Max=max(Count),SD=sd(Count)) %>% 
   group_by(Species,month) %>% 
   summarise(Mean=mean(Mean_Num),Max=max(Max),SD=sd(Mean_Num))
-Species_abun_sum$month<-factor(Species_abun_sum$month,levels =c(8,9,10,11,12,1,2,3,4,5,6) )
+# Species_abun_sum$month<-factor(Species_abun_sum$month,levels =c(8,9,10,11,12,1,2,3,4,5,6) )
+Species_abun_sum$month<-factor(Species_abun_sum$month)
 Species_abun_sum<-arrange(Species_abun_sum,Species, month)
 
 Species_abun_sum<-left_join(Species_abun_sum,OneP)
 unique(Species_abun_sum$OnePct)
 ggplot(Species_abun_sum,aes(x=month,y=Max,group=Species))+
-  geom_hline(aes(yintercept=OnePct),colour="red",linetype=2)+
+  geom_hline(aes(yintercept=OnePct),colour="red",linetype=2, size=1.3)+
   geom_point(colour="dodgerblue3")+
   geom_path(colour="dodgerblue1")+
-  facet_wrap(~Species, scales = "free_y")+theme_bw(base_size = 24)+ylab("Maximum Seasonal Abundance")
+  facet_wrap(~Species, scales = "free_y")+theme_bw(base_size = 24)+ylab("Maximum Monthly Abundance")
 
 ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/max_seasonal_abundance_by_sp.jpg",scale = 1,width = 16,height=12,units = "in",dpi = 450)
 
 # Group by Family  -------------------------------------------------------------
 Fam<-hmm %>%
-  group_by(Family) %>% 
-  filter(n()>10,max(Count)>3, Water==1) %>% 
+  filter(Water==1) %>%
+  group_by(Family,Date,year,month) %>% 
+  summarise(Sum=sum(Count)) %>% 
   group_by(Family,year,month) %>% 
-  summarise(Mean_Num=mean(Count),Max=max(Count),SD=sd(Count)) %>% 
+  summarise(Mean_Num=mean(Sum),Max1=max(Sum),SD=sd(Sum)) %>% 
   group_by(Family,month) %>% 
-  summarise(Mean=mean(Mean_Num),Max=max(Max),SD=sd(Mean_Num))
+  summarise(Mean=mean(Mean_Num),Max=max(Max1),SD=sd(Mean_Num)) %>% View()
+
 Fam$month<-factor(Fam$month,levels =c(8,9,10,11,12,1,2,3,4,5,6) )
 Fam<-arrange(Fam,Family, month)
 
 ggplot(Fam,aes(x=month,y=Max,group=Family))+
+  facet_wrap(~Family, scales = "free_y")+
   geom_point(colour="dodgerblue3")+
-  geom_path(colour="dodgerblue1")+
-  facet_wrap(~Family, scales = "free_y")+theme_bw(base_size = 24)+ylab("Maximum Seasonal Abundance")
+  geom_path(colour="dodgerblue1")+theme_bw(base_size = 24)+ylab("Maximum Seasonal Abundance")
+
 ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/max_seasonal_abundance_by_fam.jpg",scale = 1,width = 16,height=12,units = "in",dpi = 450)
 
 ggplot(Fam,aes(x=month,y=Mean,group=Family))+
@@ -182,3 +220,19 @@ ggplot(Fam,aes(x=month,y=Mean,group=Family))+
   geom_path(colour="dodgerblue1")+
   facet_wrap(~Family, scales = "free_y")+theme_bw(base_size = 24)+ylab("Mean ± SD (Seasonal Abundance)")
 ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/mean_seasonal_abundance_by_fam.jpg",scale = 1,width = 16,height=12,units = "in",dpi = 450)
+
+
+Sco<-hmm %>%
+  filter(Family=="Scolopacidae") %>% 
+  group_by(Family,Date,year,month) %>% 
+  summarise(Sum=sum(Count)) %>% 
+  group_by(Family,year,month) %>% 
+  summarise(Mean_Num=mean(Sum),Max=max(Sum),SD=sd(Sum)) %>% 
+  group_by(Family,month) %>% 
+  summarise(Mean=mean(Mean_Num),Max=max(Max),SD=sd(Mean_Num)) %>% 
+  arrange(Family, month) %>% View()
+
+ggplot(Sco,aes(x=month,y=Max,group=Family))+
+  geom_point(colour="dodgerblue3")+
+  geom_path(colour="dodgerblue1")+
+  facet_wrap(~Family, scales = "free_y")+theme_bw(base_size = 24)+ylab("Maximum Seasonal Abundance")
