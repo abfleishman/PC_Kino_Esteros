@@ -33,8 +33,12 @@ ggplot(Month_Sp_Rich_All,aes(x=month,y=RICH))+
   geom_errorbar(aes(ymin=RICH-SD,ymax=RICH+SD),width=.5,position=position_dodge(.5))+
   ylab("Species Richness ± SD")+
   xlab("Month")+theme_bw(base_size = 24)
-ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/Mean_Richness_month.jpg",scale = 1.25,width = 6.42,height=9,units = "in",dpi = 450)
+ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/Mean_Richness_month.jpg",scale = 1.25,width = 6,height=4,units = "in",dpi = 450)
 
+hmm %>%
+  filter(year!=2017,Water==1,Rich==1) %>% 
+  summarise(SpRich=length(unique(Species)),Total_ind=sum(Count)) %>% 
+  summarise(Mean=mean(SpRich),SD=sd(SpRich),Sum=sum(Total_ind))
 
 
 year_Sp_Rich<-hmm1 %>%
@@ -52,7 +56,7 @@ ggplot(year_Sp_Rich,aes(x=year,y=Rich))+
   geom_errorbar(aes(ymin=Rich-SD,ymax=Rich+SD),width=.5,position=position_dodge(.5))+
   ylab("Species Richness ± SD")+
   xlab("Year")+theme_bw(base_size = 24)+theme(axis.text.x =element_text(angle = 0))
-ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/Richness_Year.jpg",scale = 1.25,width = 6.42,height=9,units = "in",dpi = 450)
+ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/Richness_Year.jpg",scale = 1.25,width = 6,height=4,units = "in",dpi = 450)
 
 
 # Mean Sp Abundance by month ----------------------------------------------
@@ -74,7 +78,7 @@ ggplot(Month_Sp_Abun_All,aes(x=month,y=Num))+
   geom_errorbar(aes(ymin=Num-SD_Num,ymax=Num+SD_Num),width=.5,position=position_dodge(.5))+
   ylab("Total Abundance ± SD")+
   xlab("Month")+theme_bw(base_size = 24)
-ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/Total_Abundance_month.jpg",scale = 1.25,width = 6.42,height=9,units = "in",dpi = 450)
+ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/Total_Abundance_month.jpg",scale = 1.25,width = 6,height=4,units = "in",dpi = 450)
 
 # Seasonal Species Richness by year ---------------------------------------------------------
 Year_Sum<-hmm1 %>%
@@ -192,7 +196,7 @@ ggplot(Species_abun_sum,aes(x=month,y=Max,group=Species))+
   geom_path(colour="dodgerblue1")+
   facet_wrap(~Species, scales = "free_y")+theme_bw(base_size = 24)+ylab("Maximum Monthly Abundance")
 
-ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/max_seasonal_abundance_by_sp.jpg",scale = 1.25,width = 10.67,height=8.42,units = "in",dpi = 450)
+ggsave(filename  = "~/Dropbox/PC_Kino_Esteros/Plots/max_seasonal_abundance_by_sp.jpg",scale = 1.25,width = 11.4,height=8,units = "in",dpi = 450)
 
 # Group by Family  -------------------------------------------------------------
 Fam<-hmm %>%
